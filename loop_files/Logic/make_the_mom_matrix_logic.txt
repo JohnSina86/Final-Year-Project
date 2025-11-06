@@ -1,0 +1,106 @@
+Logic Breakdown:
+
+This script is a function that generates a matrix for a Method of Moments (MoM) problem, likely related to electromagnetic scattering.
+
+1.  **Function Definition:**
+    *   Defines a function `make_the_mom_matrix` that takes `length_of_strip`, `TX`, and `TY` as input and returns a `result` matrix.
+
+2.  **Constants and Parameters:**
+    *   Defines physical constants: frequency (`f`), permittivity (`epsilon0`), permeability (`mu0`), speed of light (`c0`), angular frequency (`omega`), wavenumber (`k0`), wavelength (`lambda`), and impedance of free space (`eta`).
+    *   Sets up strip parameters: `no_of_strips`, `strip_length`, `angle`, `strip_start_x`, `strip_start_y`. It appears to model a single, straight strip of a given length.
+    *   Sets up parameters for a contour plot, although the plotting itself is not done in this function (`contour_plot_x_start`, etc.).
+    *   Defines discretization parameters: `disc_per_lambda` (discretizations per wavelength) and `delta_s` (length of each segment).
+
+3.  **Discretize the Strip:**
+    *   Initializes a position counter `pos_counter`.
+    *   Loops through the number of strips (which is 1).
+    *   Calculates `N_per_strip`, the number of segments for the current strip.
+    *   If there were multiple strips, it would calculate the start position of the current strip based on the end position of the previous one.
+    *   Loops from 1 to `N_per_strip` to create the segments.
+    *   For each segment:
+        *   Increments `pos_counter`.
+        *   Calculates the x and y coordinates of the center of the segment.
+        *   Calculates the `arc_length` to the center of the segment.
+
+4.  **Calculate the Incident Field (V vector):**
+    *   Loops from 1 to `pos_counter` (for each segment).
+    *   Calculates the distance `R` from the source point (`TX`, `TY`) to the center of the current segment.
+    *   Calculates the incident field `V` at that segment using Bessel functions (`besselj` and `bessely`). This represents the right-hand side of the matrix equation.
+
+5.  **Calculate the Impedance Matrix (Z matrix):**
+    *   Calculates the "self-impedance" term `self`, which is the impedance of a segment due to its own current. This is a special case for the diagonal elements of the `Z` matrix.
+    *   Starts a nested loop to calculate the interaction between each pair of segments (`ct1` and `ct2`).
+    *   For each pair:
+        *   Calculates the distance `R` between the centers of the two segments.
+        *   Calculates the Hankel function term `the_hank` (related to the Green's function in 2D).
+        *   **If `ct1` is not equal to `ct2` (off-diagonal elements):**
+            *   The impedance `Z(ct1, ct2)` is calculated based on the Hankel function and `delta_s`.
+        *   **If `ct1` is equal to `ct2` (diagonal elements):**
+            *   The impedance `Z(ct1, ct2)` is calculated using the pre-computed `self` term.
+
+6.  **Form the Result Matrix:**
+    *   Combines the `Z` matrix, the `V` vector, and the transpose of the `x` coordinates into a single `result` matrix. This is the output of the function.
+
+Flowchart (in text):
+
+Start Function(length_of_strip, TX, TY)
+|
++--> Define physical constants (f, epsilon0, mu0, c0, omega, k0, lambda, eta)
+|
++--> Define strip and discretization parameters (no_of_strips, strip_length, angle, delta_s)
+|
++--> Initialize pos_counter = 0
+|
++--> Loop ct_strip = 1 to no_of_strips
+|   |
+|   +--> Calculate N_per_strip
+|   |
+|   +--> Loop ct_within_strip = 1 to N_per_strip
+|   |   |
+|   |   +--> pos_counter = pos_counter + 1
+|   |   |
+|   |   +--> Calculate segment center coordinates (x(pos_counter), y(pos_counter))
+|   |   |
+|   |   +--> Calculate arc_length(pos_counter)
+|   |
+|   +--> End of inner loop
+|
++--> End of outer loop
+|
++--> Loop ct = 1 to pos_counter (for V vector)
+|   |
+|   +--> Calculate distance R from source (TX, TY) to segment ct
+|   |
+|   +--> Calculate V(ct, 1) using Bessel functions
+|
++--> End of loop
+|
++--> Calculate self-impedance term 'self'
+|
++--> Loop ct1 = 1 to pos_counter (for Z matrix rows)
+|   |
+|   +--> Loop ct2 = 1 to pos_counter (for Z matrix columns)
+|   |   |
+|   |   +--> Calculate distance R between segment ct1 and ct2
+|   |   |
+|   |   +--> Calculate Hankel function term 'the_hank'
+|   |   |
+|   |   +--> If ct1 != ct2
+|   |   |   |
+|   |   |   +--> Z(ct1, ct2) = off-diagonal formula
+|   |   |
+|   |   +--> Else (ct1 == ct2)
+|   |   |   |
+|   |   |   +--> Z(ct1, ct2) = diagonal formula (using 'self')
+|   |   |
+|   |   +--> End If
+|   |
+|   +--> End of inner loop
+|
++--> End of outer loop
+|
++--> Combine Z, V, and x' into 'result' matrix
+|
++--> Return result
+|
+End Function

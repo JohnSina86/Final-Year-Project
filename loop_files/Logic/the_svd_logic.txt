@@ -1,0 +1,53 @@
+Logic Breakdown:
+
+This script demonstrates the Singular Value Decomposition (SVD) of a randomly generated matrix.
+
+1.  **Initialization:**
+    *   Clear the command window (`clc`), clear all variables from the workspace (`clear all`), and close all open figures (`close all`).
+
+2.  **Define Matrix Dimensions:**
+    *   Specifies the number of rows `N` (6) and columns `M` (8) for the matrix.
+
+3.  **Create Random Matrix A:**
+    *   Uses nested `for` loops to create an `N x M` matrix `A`.
+    *   Each element `A(ct1, ct2)` is assigned a random floating-point number using `rand()`.
+    *   The script notes that `A = rand(N,M)` could also be used for this purpose.
+
+4.  **Perform Singular Value Decomposition (SVD):**
+    *   Displays the matrix `A`.
+    *   Applies the `svd()` function to matrix `A` to obtain three matrices:
+        *   `U`: Left singular vectors (orthogonal matrix).
+        *   `S`: Singular values (diagonal matrix).
+        *   `V`: Right singular vectors (orthogonal matrix).
+    *   The `svd` function in MATLAB returns `S` as a diagonal matrix with singular values on the diagonal.
+
+5.  **Recreate Original Matrix:**
+    *   Reconstructs the original matrix `A` by multiplying `U * S * V'` (where `V'` is the conjugate transpose of `V`). This demonstrates that SVD decomposes a matrix into these components, and they can be used to recreate the original matrix.
+
+Flowchart (in text):
+
+Start
+|
++--> Initialize (clc, clear all, close all)
+|
++--> Specify number of rows N = 6
+|
++--> Specify number of columns M = 8
+|
++--> Loop ct1 = 1 to N
+|   |
+|   +--> Loop ct2 = 1 to M
+|   |   |
+|   |   +--> A(ct1, ct2) = rand()
+|   |
+|   +--> End inner loop
+|
++--> End outer loop
+|
++--> Display matrix A
+|
++--> Perform SVD: [U, S, V] = svd(A)
+|
++--> Recreate A: recreated_A = U * S * V'
+|
+End

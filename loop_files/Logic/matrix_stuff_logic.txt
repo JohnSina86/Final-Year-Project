@@ -1,0 +1,138 @@
+Logic Breakdown:
+
+This script demonstrates various basic matrix operations in MATLAB.
+
+1.  **Initialization:**
+    *   Clear the command window (`clc`), clear all variables from the workspace (`clear all`), and close all open figures (`close all`).
+
+2.  **Matrix Multiplication:**
+    *   Prints a message about matrix multiplication.
+    *   Defines a 2x3 matrix `A`.
+    *   Defines a 3x1 column vector `v`.
+    *   Calculates the product `A*v` and stores it in `product`.
+    *   Pauses execution, waiting for user input.
+
+3.  **Matrix Creation using Loops:**
+    *   Defines `no_of_rows` and `no_of_cols`.
+    *   Uses nested `for` loops to create a matrix `B` where each element is a random number.
+
+4.  **Sub-matrix Extraction:**
+    *   Prints a message about identifying sub-matrices.
+    *   Displays the matrix `B`.
+    *   Extracts a sub-matrix `sub_matrix_of_B` from `B` (rows 1-2, columns 2-4).
+    *   Pauses execution, waiting for user input.
+
+5.  **Transposes:**
+    *   Prints a message about transposes.
+    *   Calculates the transpose of `B` using the `'` operator and stores it in `B_transpose`.
+    *   Pauses execution, waiting for user input.
+
+6.  **Complex Matrices and Conjugate Transpose:**
+    *   Uses nested `for` loops to create a complex matrix `B_complex` with random real and imaginary parts.
+    *   Prints a message about complex matrices.
+    *   Displays `B_complex`.
+    *   Calculates the conjugate transpose of `B_complex` using the `'` operator and stores it in `B_conjugate_transpose`.
+    *   Pauses execution, waiting for user input.
+
+7.  **Unconjugated Transpose of Complex Matrix:**
+    *   Calculates the unconjugated transpose of `B_complex` by taking the conjugate first and then the transpose (`conj(B_complex)'`).
+
+8.  **Inner and Outer Products:**
+    *   Prints a message about inner product.
+    *   Defines a row vector `a` and a column vector `c`.
+    *   Calculates the inner product `a*c` and stores it in `inner_prod`.
+    *   Calculates the outer product `c*a` and stores it in `new_matrix`.
+
+9.  **Matrix Inverse and Identity Matrix:**
+    *   Creates a 5x5 random matrix `C`.
+    *   Calculates the inverse of `C` using `inv(C)` and stores it in `the_inverse_of_C`.
+    *   Demonstrates that `C * inv(C)` and `inv(C) * C` result in the identity matrix (approximately).
+    *   Creates a 5x5 identity matrix using `eye(5)` and stores it in `simple_identity`.
+
+Flowchart (in text):
+
+Start
+|
++--> Initialize (clc, clear all, close all)
+|
++--> Display "Lets look at matrix multiplication:"
+|
++--> Define matrix A and vector v
+|
++--> Calculate product = A * v
+|
++--> Display "Press any key to continue"
+|
++--> Pause
+|
++--> Define no_of_rows, no_of_cols
+|
++--> Loop ct1 = 1 to no_of_rows
+|   |
+|   +--> Loop ct2 = 1 to no_of_cols
+|   |   |
+|   |   +--> B(ct1, ct2) = rand()
+|   | 
+|   +--> End inner loop
+|
++--> End outer loop
+|
++--> Display "Lets look at identifying sub-matrices"
+|
++--> Display matrix B
+|
++--> Extract sub_matrix_of_B = B(1:2, 2:4)
+|
++--> Display "Press any key to continue"
+|
++--> Pause
+|
++--> Display "Lets look at transposes"
+|
++--> Calculate B_transpose = B'
+|
++--> Display "Press any key to continue"
+|
++--> Pause
+|
++--> Loop ct1 = 1 to no_of_rows
+|   |
+|   +--> Loop ct2 = 1 to no_of_cols
+|   |   |
+|   |   +--> B_complex(ct1, ct2) = rand() + i*rand()
+|   | 
+|   +--> End inner loop
+|
++--> End outer loop
+|
++--> Display "Lets look at complex matrices"
+|
++--> Display B_complex
+|
++--> Calculate B_conjugate_transpose = B_complex'
+|
++--> Display "Press any key to continue"
+|
++--> Pause
+|
++--> Calculate B_transpose = conj(B_complex)'
+|
++--> Display "To get the inner product"
+|
++--> Define vectors a and c
+|
++--> Calculate inner_prod = a * c
+|
++--> Calculate new_matrix = c * a
+|
++--> Create random matrix C = rand(5,5)
+|
++--> Calculate the_inverse_of_C = inv(C)
+|
++--> Display C * the_inverse_of_C
+|
++--> Display the_inverse_of_C * C
+|
++--> Create simple_identity = eye(5)
+|
+End

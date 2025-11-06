@@ -1,0 +1,85 @@
+Logic Breakdown:
+
+1.  **Initialization:**
+    *   Clear the command window (`clc`), clear all variables from the workspace (`clear all`), and close all open figures (`close all`).
+
+2.  **Matrix Setup:**
+    *   Define parameters `TX`, `TY`, and `length_of_strip`.
+    *   Call an external function `make_the_mom_matrix` with these parameters to get a matrix `the_data`.
+    *   Get the size of `the_data` to determine `N`, the size of the linear system.
+    *   Extract the `A` matrix (NxN), the `b` vector (Nx1), and `the_locations` vector from `the_data`.
+
+3.  **Exact Solution:**
+    *   Calculate the exact solution `exact_x` by taking the inverse of `A` and multiplying it by `b`. This is for comparison purposes.
+
+4.  **Gauss-Seidel Iteration:**
+    *   Set the number of iterations `no_of_iterations`.
+    *   Initialize the solution vector `x_GS` to zeros.
+    *   Start a loop for the specified number of iterations.
+    *   Inside the iteration loop, start another loop that iterates through each row of the matrix `A` (from 1 to N).
+    *   For each row `ct1`:
+        *   Initialize a `sum` variable with the corresponding value from the `b` vector (`b(ct1)`).
+        *   Subtract the contributions from the already updated components of `x_GS` in the current iteration (elements `1` to `ct1-1`).
+        *   Subtract the contributions from the components of `x_GS` from the *previous* iteration (elements `ct1+1` to `N`).
+        *   Update the current component `x_GS(ct1)` by dividing the `sum` by the diagonal element `A(ct1,ct1)`.
+    *   Repeat for the specified number of iterations.
+
+5.  **Plotting:**
+    *   Create a new figure.
+    *   Plot the absolute value of the Gauss-Seidel solution `x_GS` against `the_locations`.
+    *   Hold the plot.
+    *   Plot the absolute value of the exact solution `exact_x` against `the_locations` with a red dash-dot line.
+    *   Turn on the grid.
+    *   Add a legend to distinguish the "GS" (Gauss-Seidel) and "Exact" solutions.
+    *   Set the title of the plot to indicate the number of Gauss-Seidel iterations.
+    *   Label the x and y axes.
+
+Flowchart (in text):
+
+Start
+|
++--> Initialize (clc, clear all, close all)
+|
++--> Define parameters (TX, TY, length_of_strip)
+|
++--> Call `make_the_mom_matrix` to get `the_data`
+|
++--> Extract A, b, and the_locations from the_data
+|
++--> Calculate exact solution (exact_x = inv(A) * b)
+|
++--> Set number of iterations (no_of_iterations)
+|
++--> Initialize Gauss-Seidel solution vector (x_GS) to zeros
+|
++--> Loop from iteration_counter = 1 to no_of_iterations
+|   |
+|   +--> Loop from ct1 = 1 to N (rows)
+|   |   |
+|   |   +--> sum = b(ct1)
+|   |   |
+|   |   +--> Loop from ct2 = 1 to ct1-1
+|   |   |   |
+|   |   |   +--> sum = sum - A(ct1, ct2) * x_GS(ct2)
+|   |   |
+|   |   +--> Loop from ct2 = ct1+1 to N
+|   |   |   |
+|   |   |   +--> sum = sum - A(ct1, ct2) * x_GS(ct2)
+|   |   |
+|   |   +--> x_GS(ct1) = sum / A(ct1, ct1)
+|   |
+|   +--> End of inner loop (rows)
+|
++--> End of outer loop (iterations)
+|
++--> Create a new figure
+|
++--> Plot |x_GS| vs the_locations
+|
++--> Hold the plot
+|
++--> Plot |exact_x| vs the_locations
+|
++--> Add grid, legend, title, and labels
+|
++--> End

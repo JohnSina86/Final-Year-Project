@@ -1,0 +1,108 @@
+Logic Breakdown:
+
+1.  **Initialization:**
+    *   Clear the command window (`clc`), clear all variables from the workspace (`clear all`), and close all open figures (`close all`).
+
+2.  **Define Polygon:**
+    *   Create a 3x5 matrix named `polygon_point`.
+    *   Each column represents a vertex of a square in 2D homogeneous coordinates (x, y, 1).
+    *   The vertices are (0,0), (10,0), (10,10), and (0,10).
+    *   The 5th vertex is the same as the first to close the polygon for plotting.
+
+3.  **Calculate Centroid:**
+    *   Calculate the x and y coordinates of the centroid of the square.
+
+4.  **Define Transformations:**
+    *   **Rotation:**
+        *   Define a rotation angle `theta` (3*pi/4 radians, which is 135 degrees).
+        *   Create a 3x3 rotation matrix `rot_matrix` for the given angle.
+        *   Apply the rotation to the polygon by multiplying `rot_matrix` with `polygon_point` to get `rot_polygon`.
+    *   **Translation:**
+        *   Define translation values `tx` (2.0) and `ty` (4.0).
+        *   Create a 3x3 translation matrix `trans_matrix`.
+        *   Apply the translation to the polygon to get `trans_polygon`.
+    *   **Reflection:**
+        *   Create a 3x3 reflection matrix `ref_matrix` to reflect about the y-axis.
+        *   Apply the reflection to the polygon to get `ref_polygon`.
+    *   **Scaling:**
+        *   Create a 3x3 scaling matrix `scaling_matrix` with scaling factors of 0.5 for both x and y.
+        *   Apply the scaling to the polygon to get `scaled_polygon`.
+    *   **Shearing:**
+        *   Create a 3x3 shear matrix `shear_matrix` with a shear factor of 0.5 in the x-direction.
+        *   Apply the shear to the polygon to get `shear_polygon`.
+    *   **Combined Transformation:**
+        *   Apply scaling and then translation to the original polygon to get `scaled_then_translated_polygon`.
+
+5.  **Plotting:**
+    *   Create a new figure.
+    *   Plot the original polygon.
+    *   Turn on the grid and hold the plot for subsequent plots.
+    *   Plot each of the transformed polygons with different colors and markers.
+        *   Rotated polygon (green)
+        *   Translated polygon (yellow)
+        *   Reflected polygon (black)
+        *   Scaled polygon (magenta)
+        *   Sheared polygon (red)
+        *   Scaled then translated polygon (cyan)
+    *   Set the axis limits from -30 to 30 for both x and y.
+    *   Add a legend to identify the original and transformed polygons.
+
+Flowchart (in text):
+
+Start
+|
++--> Initialize (clc, clear all, close all)
+|
++--> Define polygon vertices (3x5 matrix `polygon_point`)
+|
++--> Calculate polygon centroid (centre_x, centre_y)
+|
++--> Define rotation angle (theta)
+|
++--> Create rotation matrix (rot_matrix)
+|
++--> Apply rotation to polygon (rot_polygon = rot_matrix * polygon_point)
+|
++--> Define translation values (tx, ty)
+|
++--> Create translation matrix (trans_matrix)
+|
++--> Apply translation to polygon (trans_polygon = trans_matrix * polygon_point)
+|
++--> Create reflection matrix (ref_matrix)
+|
++--> Apply reflection to polygon (ref_polygon = ref_matrix * polygon_point)
+|
++--> Create scaling matrix (scaling_matrix)
+|
++--> Apply scaling to polygon (scaled_polygon = scaling_matrix * polygon_point)
+|
++--> Create shear matrix (shear_matrix)
+|
++--> Apply shear to polygon (shear_polygon = shear_matrix * polygon_point)
+|
++--> Apply scaling then translation (scaled_then_translated_polygon = trans_matrix * scaling_matrix * polygon_point)
+|
++--> Create a new figure
+|
++--> Plot original polygon
+|
++--> Hold the plot
+|
++--> Plot rotated polygon
+|
++--> Plot translated polygon
+|
++--> Plot reflected polygon
+|
++--> Plot scaled polygon
+|
++--> Plot sheared polygon
+|
++--> Plot scaled then translated polygon
+|
++--> Set axis limits
+|
++--> Add legend
+|
++--> End

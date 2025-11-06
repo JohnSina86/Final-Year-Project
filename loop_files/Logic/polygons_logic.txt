@@ -1,0 +1,76 @@
+Logic Breakdown:
+
+This script defines a polygon representing the letter 'E' and then applies a series of affine transformations to it, finally plotting both the original and transformed polygons.
+
+1.  **Initialization:**
+    *   Clear the command window (`clc`), clear all variables from the workspace (`clear all`), and close all open figures (`close all`).
+
+2.  **Define Letter 'E' Polygon:**
+    *   Define dimensions for the letter 'E': `e_height`, `e_thickness`, `e_width`.
+    *   Create a 3x14 matrix named `letter`.
+    *   Each column represents a vertex of the letter 'E' in 2D homogeneous coordinates (x, y, 1). The coordinates are defined based on the `e_height`, `e_thickness`, and `e_width` parameters to form the shape of an 'E'.
+    *   The third row of the `letter` matrix is set to 1.0 for all vertices, indicating homogeneous coordinates.
+
+3.  **Define Affine Transformation Matrices:**
+    *   **Rotation:**
+        *   Define a rotation angle `theta` (pi/4 radians, which is 45 degrees).
+        *   Create a 3x3 rotation matrix `rotation`.
+    *   **Translation:**
+        *   Create a 3x3 translation matrix `translation` with `tx = 20` and `ty = -5`.
+    *   **Shear:**
+        *   Create a 3x3 shear matrix `shear` with a shear factor of 2 in the x-direction.
+    *   **Scale:**
+        *   Create a 3x3 scaling matrix `scale` with scaling factors of 0.5 for x and 2 for y.
+    *   **Reflection:**
+        *   Create a 3x3 reflection matrix `reflection` to reflect about the y-axis.
+
+4.  **Combine Transformations:**
+    *   Multiply the individual transformation matrices in a specific order (`reflection * scale * shear * translation * rotation`) to create a single combined transformation matrix `transformation`. The order of multiplication is important as matrix multiplication is not commutative.
+
+5.  **Apply Transformation:**
+    *   Apply the combined `transformation` matrix to the `letter` polygon to get the `new_poly` (transformed polygon).
+
+6.  **Plotting:**
+    *   Create a new figure.
+    *   Fill the original `letter` polygon with black color.
+    *   Hold the plot.
+    *   Fill the `new_poly` (transformed polygon) with red color.
+    *   Set the axis limits from -20 to 20 for both x and y.
+
+Flowchart (in text):
+
+Start
+|
++--> Initialize (clc, clear all, close all)
+|
++--> Define dimensions for letter 'E' (e_height, e_thickness, e_width)
+|
++--> Define vertices of letter 'E' polygon (letter matrix)
+|
++--> Define rotation angle (theta)
+|
++--> Create rotation matrix
+|
++--> Create translation matrix
+|
++--> Create shear matrix
+|
++--> Create scale matrix
+|
++--> Create reflection matrix
+|
++--> Combine transformation matrices (transformation = reflection * scale * shear * translation * rotation)
+|
++--> Apply combined transformation to polygon (new_poly = transformation * letter)
+|
++--> Create a new figure
+|
++--> Fill original polygon (black)
+|
++--> Hold the plot
+|
++--> Fill transformed polygon (red)
+|
++--> Set axis limits
+|
+End

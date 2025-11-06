@@ -1,0 +1,119 @@
+Logic Breakdown:
+
+This script implements a simple linear least squares regression to fit a line `y = b*x` to a given set of data points. It demonstrates two ways to calculate the slope `b` and compares the errors.
+
+1.  **Initialization:**
+    *   Clear the command window (`clc`), clear all variables from the workspace (`clear all`), and close all open figures (`close all`).
+
+2.  **Load Data:**
+    *   Loads data points from a file named `data.res` into `data_points`.
+    *   Extracts the x-coordinates into vector `x` and y-coordinates into vector `y`.
+    *   Determines the number of data points `N`.
+
+3.  **Least Squares (Method 1 - Direct Formula):**
+    *   Initializes `sum_xy` and `sum_xx` to 0.0.
+    *   Loops through each data point:
+        *   Calculates the sum of `x*y` and `x*x`.
+    *   Calculates the slope `b_tilde` using the direct formula for linear regression through the origin: `b_tilde = sum(x*y) / sum(x*x)`.
+    *   Prints the value of `b_tilde`.
+
+4.  **Least Squares (Method 2 - Linear Algebra):**
+    *   Loops through each data point to construct the design matrix `A` (where `A(ct,1) = x(ct)`) and the observation vector `y_vec` (where `y_vec(ct,1) = y(ct)`).
+    *   Calculates the slope `answer` (which is `alt_b`) using the linear algebra solution for least squares: `(A'*A)^-1 * A' * y_vec`.
+    *   Prints the value of `alt_b`.
+
+5.  **Error Calculation:**
+    *   Defines a `not_as_good_b` value (slightly different from `b_tilde`) for comparison.
+    *   Initializes `error` and `not_as_good_error` to 0.0.
+    *   Loops through each data point:
+        *   Calculates `alt_predicted_y` using `alt_b`.
+        *   Calculates `predicted_y` using `b_tilde`.
+        *   Calculates `not_as_good_y` using `not_as_good_b`.
+        *   Calculates the sum of squared errors for `b_tilde` (`error`).
+        *   Calculates the sum of squared errors for `not_as_good_b` (`not_as_good_error`).
+    *   Prints the calculated `error` and `not_as_good_error`.
+
+6.  **Plotting:**
+    *   Create a new figure.
+    *   Plots the original data points (`x`, `y`) as asterisks.
+    *   Holds the plot.
+    *   Plots the regression line from `b_tilde` (`x`, `predicted_y`) in red.
+    *   Plots the regression line from `alt_b` (`x`, `alt_predicted_y`) in green dash-dot.
+    *   Plots the regression line from `not_as_good_b` (`x`, `not_as_good_y`) in black.
+    *   Sets the title, x-label, and y-label.
+    *   Turns on the grid.
+    *   Adds a legend to identify the different plots.
+
+Flowchart (in text):
+
+Start
+|
++--> Initialize (clc, clear all, close all)
+|
++--> Load data from 'data.res' into data_points
+|
++--> Extract x and y vectors, determine N
+|
++--> Initialize sum_xy = 0.0, sum_xx = 0.0
+|
++--> Loop ct = 1 to N
+|   |
+|   +--> sum_xy = sum_xy + x(ct)*y(ct)
+|   |
+|   +--> sum_xx = sum_xx + x(ct)*x(ct)
+|
++--> End loop
+|
++--> Calculate b_tilde = sum_xy / sum_xx
+|
++--> Print b_tilde
+|
++--> Loop ct = 1 to N
+|   |
+|   +--> A(ct,1) = x(ct)
+|   |
+|   +--> y_vec(ct,1) = y(ct)
+|
++--> End loop
+|
++--> Calculate alt_b = inv(A'*A)*A'*y_vec
+|
++--> Print alt_b
+|
++--> Define not_as_good_b
+|
++--> Initialize error = 0.0, not_as_good_error = 0.0
+|
++--> Loop ct = 1 to N
+|   |
+|   +--> Calculate alt_predicted_y(ct)
+|   |
+|   +--> Calculate predicted_y(ct)
+|   |
+|   +--> Calculate not_as_good_y(ct)
+|   |
+|   +--> error = error + power(y(ct) - predicted_y(ct), 2.0)
+|   |
+|   +--> not_as_good_error = not_as_good_error + power(y(ct) - not_as_good_y(ct), 2.0)
+|
++--> End loop
+|
++--> Print error
+|
++--> Print not_as_good_error
+|
++--> Create new figure
+|
++--> Plot data points
+|
++--> Hold plot
+|
++--> Plot predicted_y (LS1)
+|
++--> Plot alt_predicted_y (LS2)
+|
++--> Plot not_as_good_y
+|
++--> Set title, labels, grid, and legend
+|
+End
