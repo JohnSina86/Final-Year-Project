@@ -8,40 +8,26 @@ os.chdir(script_dir)
 
 print(f"Working directory: {os.getcwd()}")
 
-# Read exact solution (complex numbers)
-x_exact_real = []
-x_exact_imag = []
-with open('x_exact.txt', 'r') as f:
+# Read solution from new file
+solution = []
+with open('current_distribution.txt', 'r') as f:
     for line in f:
-        if line.startswith('%') or line.strip() == '':
+        line = line.strip()
+
+        # Skip comment lines
+        if line.startswith('%') or line == '':
             continue
-        line = line.strip().replace('(', '').replace(')', '')
-        parts = line.split(',')
-        if len(parts) == 2:
-            x_exact_real.append(float(parts[0]))
-            x_exact_imag.append(float(parts[1]))
 
-x_exact = np.array(x_exact_real) + 1j * np.array(x_exact_imag)
-print(f"Read {len(x_exact)} exact values")
+        # Parse (real,imag)
+        real, imag = line.strip('()').split(',')
+        solution.append(complex(float(real), float(imag)))
 
-# Read SSOR solution (complex numbers)
-x_ssor_real = []
-x_ssor_imag = []
-with open('x_optimized.txt', 'r') as f:
-    for line in f:
-        if line.startswith('%') or line.strip() == '':
-            continue
-        line = line.strip().replace('(', '').replace(')', '')
-        parts = line.split(',')
-        if len(parts) == 2:
-            x_ssor_real.append(float(parts[0]))
-            x_ssor_imag.append(float(parts[1]))
+solution = np.array(solution)
+print(f"Read {len(solution)} values from current_distribution.txt")
 
-x_ssor = np.array(x_ssor_real) + 1j * np.array(x_ssor_imag)
-print(f"Read {len(x_ssor)} SSOR values")
 
 # Generate positions based on problem size
-N = len(x_exact)
+N = len(solution)
 # Assuming strip starts at 0 and uses lambda/10 discretization
 # For 2 GHz, lambda = c/f = 3e8/2e9 = 0.15 m
 # With length_of_strip = 3.0, delta_s = 0.15/10 = 0.015
@@ -54,14 +40,12 @@ positions = np.array([(i + 0.5) * delta_s for i in range(N)])
 
 print(f"Generated {len(positions)} positions")
 
-# Calculate magnitudes
-mag_exact = np.abs(x_exact)
-mag_ssor = np.abs(x_ssor)
+# Calculate magnitude
+mag_solution = np.abs(solution)
 
 # Create the plot
 plt.figure(figsize=(10, 6))
-plt.plot(positions, mag_ssor, 'b-', linewidth=2, label='SSOR')
-plt.plot(positions, mag_exact, 'r--', linewidth=2, label='Exact')
+plt.plot(positions, mag_solution, 'b-', linewidth=2, label='Current Distribution (SSOR)')
 
 plt.xlabel('distance on plate', fontsize=12)
 plt.ylabel('abs(current)', fontsize=12)
@@ -71,19 +55,7 @@ plt.grid(True, alpha=0.3)
 plt.tight_layout()
 
 # Save the figure
-plt.savefig('current_comparison.png', dpi=300, bbox_inches='tight')
-print("Plot saved as current_comparison.png")
-
-# Calculate and print error metrics
-error = np.abs(x_ssor - x_exact)
-max_error = np.max(error)
-mean_error = np.mean(error)
-relative_error = np.max(error) / np.max(mag_exact) if np.max(mag_exact) > 0 else 0
-
-print(f"\nError Metrics:")
-print(f"Maximum absolute error: {max_error:.6e}")
-print(f"Mean absolute error: {mean_error:.6e}")
-print(f"Maximum relative error: {relative_error:.6%}")
-print(f"\nThe SSOR and Exact solutions match perfectly!")
+plt.savefig('current_distribution_plot.png', dpi=300, bbox_inches='tight')
+print("Plot saved as current_distribution_plot.png")
 
 plt.show()

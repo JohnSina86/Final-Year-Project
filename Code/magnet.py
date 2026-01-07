@@ -80,7 +80,7 @@ def main():
     # Read current coefficients (float32)
     x_current_real = []
     x_current_imag = []
-    with open('x_exact.txt', 'r') as f:
+    with open('current_distribution.txt', 'r') as f:
         for line in f:
             if line.startswith('%') or not line.strip():
                 continue
@@ -91,7 +91,7 @@ def main():
     
     x_current = np.array(x_current_real, dtype=np.float32) + 1j * np.array(x_current_imag, dtype=np.float32)
     N = len(x_current)
-    print(f"Loaded {N} current coefficients")
+    print(f"Loaded {N} current coefficients from current_distribution.txt")
     
     # Strip positions
     delta_s = np.float32(lambda_val / 10)
