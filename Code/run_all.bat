@@ -96,16 +96,32 @@ if exist "current_distribution_plot.png" echo   [OK] current_distribution_plot.p
 echo.
 
 REM ============================================================
-REM Optional cleanup - only delete executable
+REM Cleanup all generated files
 REM ============================================================
-echo Cleaning up...
+echo Cleaning up generated files...
 if exist "mom.exe" (
     del mom.exe
     echo   [Deleted] mom.exe
 )
+if exist "current_distribution.txt" (
+    del current_distribution.txt
+    echo   [Deleted] current_distribution.txt
+)
+if exist "geometry.txt" (
+    del geometry.txt
+    echo   [Deleted] geometry.txt
+)
+if exist "total_fields.png" (
+    del total_fields.png
+    echo   [Deleted] total_fields.png
+)
+if exist "current_distribution_plot.png" (
+    del current_distribution_plot.png
+    echo   [Deleted] current_distribution_plot.png
+)
 
 echo.
 echo ============================================================
-echo All tasks complete! Results saved.
+echo All tasks complete!
 echo ============================================================
 pause

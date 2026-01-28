@@ -17,7 +17,7 @@ The main script to run the entire simulation and visualization workflow. It perf
 2.  Runs the compiled executable to perform the MoM/SSOR calculation.
 3.  Simultaneously starts the Python scripts for visualization.
 4.  Waits for the plot windows to be closed.
-5.  Cleans up all generated executables and data files (`mom.exe`, `current_distribution.txt`, `geometry.txt`).
+5.  Cleans up all generated executables, data files, and image files (`mom.exe`, `current_distribution.txt`, `geometry.txt`, `total_fields.png`, `current_distribution_plot.png`).
 
 ### `mom.c`
 This C program implements the MoM and SSOR solver for the L-bracket geometry. Its primary responsibilities are:
