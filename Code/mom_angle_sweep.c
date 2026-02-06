@@ -8,17 +8,20 @@
 #include <malloc.h>
 
 /*******************************************************************************
- * L-BRACKET METHOD OF MOMENTS (MoM) SOLVER
+ * L-BRACKET METHOD OF MOMENTS (MoM) SOLVER - ANGLE SWEEP VERSION
  * 
  * Optimized SSOR iterative solver with hierarchical omega optimization.
+ * Supports parametric angle sweep for geometry variation studies.
+ * 
  * Features:
  *   - Parallel matrix assembly with cache blocking
  *   - 3-round hierarchical omega search (coarse → fine → ultra-fine)
  *   - Parallel SSOR solver with convergence detection
+ *   - Angle-dependent geometry (knight to U-shape transformation)
  *   - Optimized for 8-core systems
  * 
  * Compile: gcc -std=c11 -O3 -march=native -fopenmp -ffast-math -funroll-loops \
- *              mom_clean.c -lm -o mom_clean.exe
+ *              mom_angle_sweep.c -lm -o mom_angle_sweep.exe
  ******************************************************************************/
 
 //==============================================================================
@@ -33,11 +36,11 @@
 // Omega search parameters
 #define OMEGA_MIN           0.1         // Minimum relaxation parameter
 #define OMEGA_MAX           1.9         // Maximum relaxation parameter
-#define OMEGA_TEST_ITERS    500         // Iterations per omega test
+#define OMEGA_TEST_ITERS    1000         // Iterations per omega test
 
 // Physical constants
-#define M_PI 3.14159265358979323846
-#define FREQUENCY_MHZ       2400.0      // Operating frequency (MHz)
+#define M_PI                3.14159265358979323846
+#define FREQUENCY_MHZ       5000.0      // Operating frequency (MHz)
 #define EPSILON_0           8.854e-12   // Vacuum permittivity (F/m)
 #define MU_0                1.256637e-6 // Vacuum permeability (H/m)
 #define SEGMENTS_PER_LAMBDA 100         // Discretization density
@@ -73,13 +76,14 @@ typedef struct {
 } EMParameters;
 
 /**
- * Geometry configuration
+ * Geometry configuration - 3 strips (horizontal + vertical + rotating extension)
  */
 typedef struct {
     double strip_length;        // Length of each strip (m)
+    double angle_degrees;       // Angle of extension strip (degrees)
     int num_horizontal;         // Segments in horizontal strip
     int num_vertical;           // Segments in vertical strip
-    int total_segments;         // Total N
+    int total_segments;         // Total N (3 strips)
     double *x_positions;        // Segment centers X (m)
     double *y_positions;        // Segment centers Y (m)
 } Geometry;
@@ -170,37 +174,62 @@ double complex calculate_excitation(double seg_x, double seg_y,
 }
 
 //==============================================================================
-// GEOMETRY SETUP
+// GEOMETRY SETUP - KNIGHT TO U-SHAPE
 //==============================================================================
 
 /**
- * Create L-bracket geometry with horizontal and vertical strips
+ * Create 3-strip geometry: horizontal base + vertical (fixed) + rotating extension
+ * 
+ * angle_degrees = 0°:  Knight shape (extension goes right)
+ * angle_degrees = 45°: L-bracket tilted
+ * angle_degrees = 90°: U-shape (extension goes down)
  */
-Geometry create_geometry(double strip_length, EMParameters params) {
+Geometry create_geometry(double strip_length, double angle_degrees, EMParameters params) {
     Geometry geom;
 
     geom.strip_length = strip_length;
+    geom.angle_degrees = angle_degrees;
+    
+    // THREE strips: vertical (fixed) + horizontal + extension (rotates down)
     geom.num_horizontal = (int)ceil(strip_length / params.segment_length);
     geom.num_vertical = (int)ceil(strip_length / params.segment_length);
-    geom.total_segments = geom.num_horizontal + geom.num_vertical;
+    int num_extension = (int)ceil(strip_length / params.segment_length);
+    geom.total_segments = geom.num_horizontal + geom.num_vertical + num_extension;
 
     // Allocate position arrays
     geom.x_positions = aligned_alloc(64, geom.total_segments * sizeof(double));
     geom.y_positions = aligned_alloc(64, geom.total_segments * sizeof(double));
 
-    // Horizontal strip (along x-axis)
-    #pragma omp parallel for
-    for (int i = 0; i < geom.num_horizontal; i++) {
-        geom.x_positions[i] = (i + 0.5) * params.segment_length;
-        geom.y_positions[i] = 0.0;
-    }
-
-    // Vertical strip (along y-axis)
+    // STRIP 1: Vertical - FIXED along +y axis from origin
     #pragma omp parallel for
     for (int i = 0; i < geom.num_vertical; i++) {
-        int idx = geom.num_horizontal + i;
-        geom.x_positions[idx] = 0.0;
-        geom.y_positions[idx] = (i + 0.5) * params.segment_length;
+        geom.x_positions[i] = 0.0;
+        geom.y_positions[i] = (i + 0.5) * params.segment_length;
+    }
+
+    // STRIP 2: Horizontal - along +x axis from origin
+    #pragma omp parallel for
+    for (int i = 0; i < geom.num_horizontal; i++) {
+        int idx = geom.num_vertical + i;
+        geom.x_positions[idx] = (i + 0.5) * params.segment_length;
+        geom.y_positions[idx] = 0.0;
+    }
+
+    // STRIP 3: Extension from END of horizontal, rotates DOWNWARD
+    double extension_start_x = strip_length;
+    double extension_start_y = 0.0;
+    
+    // angle = 0°:  extension continues RIGHT (flat line)
+    // angle = 90°: extension goes DOWN (U-shape)
+    // Formula: start at 0° (right), rotate clockwise to -90° (down)
+    double angle_rad = angle_degrees * M_PI / 180.0;  // Negative for clockwise
+    
+    #pragma omp parallel for
+    for (int i = 0; i < num_extension; i++) {
+        int idx = geom.num_vertical + geom.num_horizontal + i;
+        double dist = (i + 0.5) * params.segment_length;
+        geom.x_positions[idx] = extension_start_x + dist * cos(angle_rad);
+        geom.y_positions[idx] = extension_start_y + dist * sin(angle_rad);
     }
 
     return geom;
@@ -446,7 +475,7 @@ int find_best_omega(double *omega_values, double *errors, int count,
 double optimize_omega_hierarchical(double complex *Z, double complex *V, int N) {
     printf("\n=== Hierarchical Omega Optimization ===\n");
 
-    // ROUND 1: Coarse search [1.0, 1.1, ..., 1.9]
+    // ROUND 1: Coarse search
     printf("\nRound 1: Coarse search (0.1 increments)\n");
 
     const int round1_count = 19;
@@ -609,8 +638,8 @@ void save_results(const char *filename, double complex *x, int N,
     fprintf(f, "%% ======================================================\n");
     fprintf(f, "%% Frequency: %.0f MHz\n", params.frequency / 1e6);
     fprintf(f, "%% Wavelength: %.6f m\n", params.wavelength);
-    fprintf(f, "%% Segments: N=%d (%d horiz + %d vert)\n", 
-            N, geom.num_horizontal, geom.num_vertical);
+    fprintf(f, "%% Geometry Angle: %.1f degrees\n", geom.angle_degrees);
+    fprintf(f, "%% Segments: N=%d (3-strip knight-to-U geometry)\n", N);
     fprintf(f, "%% Transmitter: (%.4f, %.4f) m\n", tx.x, tx.y);
     fprintf(f, "%%\n");
     fprintf(f, "%% Solver: SSOR with hierarchical omega\n");
@@ -636,9 +665,8 @@ void save_geometry(const char *filename, Geometry geom, EMParameters params) {
     FILE *f = fopen(filename, "w");
     if (!f) return;
 
-    fprintf(f, "%% L-Bracket Geometry\n");
-    fprintf(f, "%% N_total=%d, N_horizontal=%d, N_vertical=%d\n",
-            geom.total_segments, geom.num_horizontal, geom.num_vertical);
+    fprintf(f, "%% Knight-to-U Geometry (Angle = %.1f degrees)\n", geom.angle_degrees);
+    fprintf(f, "%% N_total=%d (3 strips: horiz + vert + extension)\n", geom.total_segments);
     fprintf(f, "%% Resolution: %d segments per wavelength\n", SEGMENTS_PER_LAMBDA);
     fprintf(f, "%% Format: x(m) y(m)\n");
 
@@ -657,6 +685,7 @@ int main(void) {
     printf("\n==========================================================\n");
     printf("   L-BRACKET METHOD OF MOMENTS SOLVER\n");
     printf("   Optimized SSOR with Hierarchical Omega Search\n");
+    printf("   Knight-to-U Geometry Angle Sweep\n");
     printf("==========================================================\n");
 
     clock_t program_start = clock();
@@ -672,19 +701,31 @@ int main(void) {
     }
     fclose(config);
 
+    // Read angle (default to 90° if not found)
+    double angle_degrees = 90.0;
+    FILE *angle_file = fopen("angle.txt", "r");
+    if (angle_file != NULL) {
+        if (fscanf(angle_file, "%lf", &angle_degrees) == 1) {
+            printf("Angle parameter read: %.1f degrees\n", angle_degrees);
+        }
+        fclose(angle_file);
+    } else {
+        printf("No angle.txt found, using default: %.1f degrees\n", angle_degrees);
+    }
+
     Transmitter tx = {tx_x, tx_y};
 
     // Initialize problem
     EMParameters params = initialize_em_parameters(FREQUENCY_MHZ);
-    Geometry geom = create_geometry(strip_length, params);
+    Geometry geom = create_geometry(strip_length, angle_degrees, params);
 
     printf("\nConfiguration:\n");
     printf("  Frequency: %.0f MHz (λ=%.4f m)\n", 
            params.frequency/1e6, params.wavelength);
     printf("  Strip length: %.4f m (%.2f λ)\n", 
            strip_length, strip_length/params.wavelength);
-    printf("  Segments: N=%d (%d + %d)\n",
-           geom.total_segments, geom.num_horizontal, geom.num_vertical);
+    printf("  Geometry: Knight-to-U (angle = %.1f°)\n", angle_degrees);
+    printf("  Segments: N=%d (3 strips)\n", geom.total_segments);
     printf("  Transmitter: (%.2f, %.2f) m\n", tx.x, tx.y);
     printf("  OpenMP threads: %d\n", omp_get_max_threads());
 
@@ -729,6 +770,7 @@ int main(void) {
     printf("\n==========================================================\n");
     printf("   PERFORMANCE SUMMARY\n");
     printf("==========================================================\n");
+    printf("Geometry angle:      %.1f degrees\n", angle_degrees);
     printf("Matrix assembly:     %.2f seconds\n", time_assembly);
     printf("Omega optimization:  %.2f seconds\n", time_omega);
     printf("SSOR solver:         %.2f seconds (%d iterations)\n", 
