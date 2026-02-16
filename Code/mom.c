@@ -33,7 +33,7 @@
 // Omega search parameters
 #define OMEGA_MIN           0.1         // Minimum relaxation parameter
 #define OMEGA_MAX           1.9         // Maximum relaxation parameter
-#define OMEGA_TEST_ITERS    500         // Iterations per omega test
+#define OMEGA_TEST_ITERS    1000         // Iterations per omega test
 
 // Physical constants
 #define M_PI 3.14159265358979323846
