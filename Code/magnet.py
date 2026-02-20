@@ -9,7 +9,11 @@ import os
 
 # Physical constants (float32 for memory efficiency)
 MHz = np.float32(1e6)
-f = np.float32(2000.0) * MHz
+try:
+    with open("frequency.txt", "r") as _ff:
+        f = np.float32(float(_ff.read().strip()) * 1e9)
+except FileNotFoundError:
+    f = np.float32(2000.0 * 1e6)
 c0 = np.float32(3e8)
 omega = np.float32(2) * np.pi * f
 k0 = omega / c0
@@ -191,7 +195,7 @@ def main():
     grid_size = adaptive_grid_size(N, available_memory)
 
     # Discretization
-    delta_s = np.float32(lambda_val / 40)  # Match your new resolution
+    delta_s = np.float32(lambda_val / 100)  # Must match SEGMENTS_PER_LAMBDA in mom.c
 
     # Observation grid
     x_obs = np.linspace(-0.1, 0.6, grid_size, dtype=np.float32)
@@ -360,3 +364,6 @@ if __name__ == "__main__":
         print(f"\nUnexpected error: {e}")
         import traceback
         traceback.print_exc()
+
+
+

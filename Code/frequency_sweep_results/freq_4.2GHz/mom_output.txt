@@ -1,0 +1,61 @@
+
+==========================================================
+   L-BRACKET METHOD OF MOMENTS SOLVER
+   Optimized SSOR with Hierarchical Omega Search
+==========================================================
+
+ Frequency from file: 4.2 GHz
+
+Configuration:
+  Frequency: 4.2 GHz (λ=0.0714 m)
+  Strip length: 0.5000 m (7.00 λ)
+  Segments: N=1402 (701 + 701)
+  Transmitter: (25.00, 25.00) m
+  OpenMP threads: 8
+  Memory: 29.99 MB
+
+=== STEP 1: Matrix Assembly ===
+
+Assembling 1402x1402 impedance matrix using 8 threads...
+  Progress: 100% complete
+Assembly time: 0.04 seconds
+
+=== STEP 2: Omega Optimization ===
+
+=== Hierarchical Omega Optimization ===
+
+Round 1: Coarse search (0.1 increments)
+  Best: omega=0.10 (error=5.2696e-16)
+
+Round 2: Fine search [0.10 to 0.20] (0.01 increments)
+  Best: omega=0.100 (error=5.2696e-16)
+
+Round 3: Ultra-fine search [0.100 to 0.110] (0.001 increments)
+
+==========================================================
+  OPTIMAL OMEGA: 0.1070 (error: 5.0634e-16)
+==========================================================
+Optimization time: 47.02 seconds
+
+=== STEP 3: Solve System ===
+
+Solving with SSOR (omega=0.1070, tol=1.00e-09)...
+Converged in 337 iterations (error=9.54e-10)
+
+==========================================================
+   PERFORMANCE SUMMARY
+==========================================================
+Matrix assembly:     0.04 seconds
+Omega optimization:  47.02 seconds
+SSOR solver:         1.69 seconds (337 iterations)
+----------------------------------------------------------
+Total time:          48.77 seconds
+==========================================================
+
+Results saved to:
+  - current_distribution.txt
+  - geometry.txt
+  - omega.txt (0.107000)
+
+*** Computation complete ***
+

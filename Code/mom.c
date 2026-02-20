@@ -37,7 +37,7 @@
 
 // Physical constants
 #define M_PI 3.14159265358979323846
-#define FREQUENCY_MHZ       2400.0      // Operating frequency (MHz)
+#define FREQUENCY_MHZ       2000.0      // Operating frequency (MHz)
 #define EPSILON_0           8.854e-12   // Vacuum permittivity (F/m)
 #define MU_0                1.256637e-6 // Vacuum permeability (H/m)
 #define SEGMENTS_PER_LAMBDA 100         // Discretization density
